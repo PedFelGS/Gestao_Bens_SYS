@@ -1,0 +1,184 @@
+
+<style>
+    .sidebar-transition {
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar-item {
+        transition: background-color 0.2s ease;
+    }
+
+    .sidebar-item:hover .sidebar-icon,
+    .sidebar-item.active .sidebar-icon {
+        transform: scale(1.1);
+        transition: transform 0.2s ease;
+    }
+
+    .sidebar-item.active {
+        background-color: rgb(229 231 235);
+    }
+
+    .sidebar-collapsed {
+        width: 5rem;
+    }
+
+    .sidebar-expanded {
+        width: 16rem;
+    }
+
+    .sidebar-collapsed .sidebar-text {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .sidebar-expanded .sidebar-text {
+        opacity: 1;
+        transition: opacity 0.2s ease 0.1s;
+    }
+
+    /* Tooltip para sidebar colapsada */
+    .sidebar-tooltip {
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+    }
+
+    .sidebar-collapsed .sidebar-item:hover .sidebar-tooltip {
+        opacity: 1;
+    }
+
+    /* Estilo para o botão de toggle */
+    #toggleSidebar {
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar-collapsed #toggleSidebar {
+        transform: rotate(180deg);
+    }
+
+    /* Estilo para o conteúdo principal */
+    .content-transition {
+        transition: margin-left 0.3s ease;
+    }
+
+    .content-expanded {
+        margin-left: 16rem;
+    }
+
+    .content-collapsed {
+        margin-left: 5rem;
+    }
+</style>
+
+{% with namespace=request.resolver_match.namespace %}
+    {% if namespace == 'assets_TrackerApp' or namespace == 'dashboard_TrackerApp' %}
+<nav id="sidebar" class="bg-gray-50 relative sidebar-collapsed sidebar-transition fixed left-0 h-screen bg-gray-100/20 shadow-lg">
+    <div class="p-4 border-b border-gray-200 flex items-center justify-center h-16">
+        <h1 class="text-xl font-bold text-gray-800 sidebar-text">Gestão de Ativos</h1>
+        <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Group%2043-zJQEyQwTBqQKFP2ZfSTtQifyvL3D98.png" alt="Clickmax Logo" class="h-8 w-8 hidden sidebar-collapsed:block" />
+    </div>
+
+    <ul class="p-0">
+        <li class="sidebar-item relative" data-path="{% url 'dashboard_TrackerApp:dashboard' %}">
+            <a href="{% url 'dashboard_TrackerApp:dashboard' %}" class="flex flex-col items-center justify-center p-4 hover:bg-gray-100 transition-colors rounded-lg mx-2">
+                <i class="sidebar-icon text-gray-600" data-lucide="layout-dashboard"></i>
+                <span class="sidebar-text text-sm mt-2 text-gray-600">Dashboard</span>
+                <span class="sidebar-tooltip">Dashboard</span>
+            </a>
+        </li>
+
+        <li class="sidebar-item relative" data-path="{% url 'assets_TrackerApp:asset_list' %}">
+            <a href="{% url 'assets_TrackerApp:asset_list' %}" class="flex flex-col items-center justify-center p-4 hover:bg-gray-100 transition-colors rounded-lg mx-2">
+                <i class="sidebar-icon text-gray-600" data-lucide="package"></i>
+                <span class="sidebar-text text-sm mt-2 text-gray-600">Items</span>
+                <span class="sidebar-tooltip">Items</span>
+            </a>
+        </li>
+
+        <li class="sidebar-item relative" data-path="{% url 'assets_TrackerApp:department_list' %}">
+            <a href="{% url 'assets_TrackerApp:department_list' %}" class="flex flex-col items-center justify-center p-4 hover:bg-gray-100 transition-colors rounded-lg mx-2">
+                <i class="sidebar-icon text-gray-600" data-lucide="map-pin"></i>
+                <span class="sidebar-text text-sm mt-2 text-gray-600">Departamentos</span>
+                <span class="sidebar-tooltip">Departamentos</span>
+            </a>
+        </li>
+
+        <li class="sidebar-item relative" data-path="{% url 'assets_TrackerApp:category_list' %}">
+            <a href="{% url 'assets_TrackerApp:category_list' %}" class="flex flex-col items-center justify-center p-4 hover:bg-gray-100 transition-colors rounded-lg mx-2">
+                <i class="sidebar-icon text-gray-600" data-lucide="tags"></i>
+                <span class="sidebar-text text-sm mt-2 text-gray-600">Categorias</span>
+                <span class="sidebar-tooltip">Categorias</span>
+            </a>
+        </li>
+
+        <li class="sidebar-item relative" data-path="{% url 'assets_TrackerApp:supplier_list' %}">
+            <a href="{% url 'assets_TrackerApp:supplier_list' %}" class="flex flex-col items-center justify-center p-4 hover:bg-gray-100 transition-colors rounded-lg mx-2">
+                <i class="sidebar-icon text-gray-600" data-lucide="truck"></i>
+                <span class="sidebar-text text-sm mt-2 text-gray-600">Fornecedores</span>
+                <span class="sidebar-tooltip">Fornecedores</span>
+            </a>
+        </li>
+    </ul>
+
+    <button id="toggleSidebar" 
+            class="absolute -right-3 top-5 bg-white p-1 rounded-full shadow-lg border border-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i data-lucide="chevron-left" class="h-4 w-4 text-gray-600"></i>
+    </button>
+</nav>
+    {% endif %}
+{% endwith %}
+
+
+
+<script>
+    // Inicializa os ícones Lucide
+    lucide.createIcons();
+
+    // Gerenciamento do estado da sidebar
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const toggleButton = document.getElementById('toggleSidebar');
+        let isCollapsed = true;
+
+        // Toggle da sidebar
+        toggleButton.addEventListener('click', function() {
+            isCollapsed = !isCollapsed;
+            
+            if (isCollapsed) {
+                sidebar.classList.replace('sidebar-expanded', 'sidebar-collapsed');
+                mainContent.classList.replace('content-expanded', 'content-collapsed');
+            } else {
+                sidebar.classList.replace('sidebar-collapsed', 'sidebar-expanded');
+                mainContent.classList.replace('content-collapsed', 'content-expanded');
+            }
+            
+            // Atualiza os ícones após a mudança
+            lucide.createIcons();
+        });
+
+        // Define o item ativo baseado na URL atual
+        const setActiveItem = () => {
+            const currentPath = window.location.pathname;
+            const currentItem = document.querySelector(`[data-path="${currentPath}"]`);
+            if (currentItem) {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                currentItem.classList.add('active');
+            }
+        };
+
+        // Chama setActiveItem inicialmente e quando a história do navegador muda
+        setActiveItem();
+        window.addEventListener('popstate', setActiveItem);
+    });
+</script>
+

@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% block 'titulo' %}Criar Novo Ativo{% endblock %}
+{% block 'content' %}
+
+<div class="container mx-auto px-4 py-8">
+
+
+    <h1 class="text-3xl font-semibold text-gray-900 mb-8">Cadastrar Ativo</h1>
+
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <div class="flex justify-between mb-8" id="steps-nav">
+            <div class="step-item flex flex-col items-center">
+                <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">
+                    <i class="fas fa-info"></i>
+                </div>
+                <span class="text-sm mt-2">Detalhes</span>
+            </div>
+            <div class="step-item flex flex-col items-center">
+                <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <span class="text-sm mt-2">RFID</span>
+            </div>
+            <div class="step-item flex flex-col items-center">
+                <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <span class="text-sm mt-2">Fornecedor</span>
+            </div>
+            <div class="step-item flex flex-col items-center">
+                <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold">
+                    <i class="fas fa-check"></i>
+                </div>
+                <span class="text-sm mt-2">Revisão</span>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" id="asset-form">
+            {% csrf_token %}
+
+            <div id="step-1" class="step-transition step-visible">
+                {% for field in form %}
+                    {% if field.name == 'name' %}
+                        <div class="mb-6">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            <div class="relative">
+                                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 pl-10" }}
+                                <!--
+                                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-laptop text-gray-400"></i>
+                                </div>
+                                -->
+                            </div>
+                            {% if field.help_text %}
+                                <p class="error-message text-red-500 text-xs mt-1 hidden">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% elif field.name == 'category' %}
+                        <div class="mb-6">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            <div class="relative">
+                                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 pl-10 appearance-none" }}
+                                <!--
+                                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-folder text-gray-400"></i>
+                                </div>
+                                -->
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-chevron-down text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% if field.help_text %}
+                                <p class="error-message text-red-500 text-xs mt-1 hidden">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% elif field.name == 'department' %}
+                    {% elif field.name == 'rfid_tag' %}
+                    {% elif field.name == 'supplier' %}
+                    {% elif field.name == 'status' %}
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            <div class="flex gap-4">
+                                {% for radio in field %}
+                                    <label class="inline-flex items-center">
+                                        {{ radio.tag }} <span class="ml-2">{{ radio.choice_label }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                            {% if field.help_text %}
+                                <p class="error-message text-red-500 text-xs mt-1 hidden">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% elif field.name == 'image' %}
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            <div class="flex items-center space-x-4">
+                                <div id="image-preview" class="w-24 h-24 bg-gray-200 rounded-md flex items-center justify-center">
+                                    <i class="fas fa-image text-gray-400 text-3xl"></i>
+                                </div>
+                                <div>
+                                    <label for="{{ field.id_for_label }}" class="cursor-pointer bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600 transition-colors inline-flex items-center">
+                                        <i class="fas fa-upload mr-2"></i>
+                                        Adicionar imagem
+                                    </label>
+                                    {{ field }}
+                                </div>
+                            </div>
+                            {% if field.help_text %}
+                                <p class="error-message text-red-500 text-xs mt-1 hidden">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="mb-6">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" }}
+                            {% if field.help_text %}
+                                <p class="error-message text-red-500 text-xs mt-1 hidden">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+
+            <div id="step-2" class="step-transition step-hidden">
+                {% for field in form %}
+                    {% if field.name == 'rfid_tag' %}
+                        <div class="mb-6">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            <div class="relative">
+                                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 pl-10" }}
+                                <!--
+                                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-tag text-gray-400"></i>
+                                </div>
+                                -->
+                            </div>
+                            <p class="text-sm text-gray-500 mt-1">A tag RFID será usada para rastrear a localização do ativo em tempo real.</p>
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% elif field.name == 'department' %}
+                        <div class="mb-6">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            <div class="relative">
+                                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 pl-10" }}
+                                <!--
+                                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                </div>
+                                -->
+                            </div>
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div id="step-3" class="step-transition step-hidden">
+                {% for field in form %}
+                    {% if field.name == 'supplier' %}
+                        <div class="mb-6">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            <div class="relative">
+                                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 pl-10" }}
+                                <!--
+                                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-truck text-gray-400"></i>
+                                </div>
+                                -->
+                            </div>
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% elif field.name == 'purchase_date' %}
+                        <div class="mb-6">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            <div class="relative">
+                                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 pl-10" }}
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar-alt text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% elif field.name == 'value' %}
+                        <div class="mb-6">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            <div class="relative">
+                                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 pl-10" }}
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-dollar-sign text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% elif field.name == 'warranty' %}
+                        <div class="mb-6">
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                            <div class="relative">
+                                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 pl-10" }}
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-shield-alt text-gray-400"></i>
+                                </div>
+                            </div>
+                            {% for error in field.errors %}
+                                <div class="error-message text-red-500 text-xs mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div id="step-4" class="step-transition step-hidden">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Revisão dos Dados</h3>
+                <div id="review-content" class="space-y-4">
+                    {% for field in form %}
+                        <p><strong>{{ field.label }}:</strong> {{ field.value }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex justify-between mt-8">
+                <button type="button" id="prev-step" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Voltar
+                </button>
+                <button type="button" id="next-step" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors flex items-center">
+                    Próximo
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('asset-form');
+        const prevButton = document.getElementById('prev-step');
+        const nextButton = document.getElementById('next-step');
+        const stepsNav = document.getElementById('steps-nav');
+        const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
+        let currentStep = 0;
+
+        function updateStepVisibility() {
+            steps.forEach((step, index) => {
+                const stepElement = document.getElementById(step);
+                if (index === currentStep) {
+                    stepElement.classList.remove('step-hidden');
+                    stepElement.classList.add('step-visible');
+                } else {
+                    stepElement.classList.remove('step-visible');
+                    stepElement.classList.add('step-hidden');
+                }
+            });
+
+            prevButton.style.display = currentStep === 0 ? 'none' : 'flex';
+            nextButton.innerHTML = currentStep === steps.length - 1 ? 'Finalizar Cadastro <i class="fas fa-check ml-2"></i>' : 'Próximo <i class="fas fa-arrow-right ml-2"></i>';
+
+            const stepItems = stepsNav.querySelectorAll('.step-item');
+            stepItems.forEach((item, index) => {
+                const circle = item.querySelector('div');
+                if (index === currentStep) {
+                    circle.classList.remove('bg-gray-300', 'text-gray-600');
+                    circle.classList.add('bg-green-500', 'text-white');
+                } else if (index < currentStep) {
+                    circle.classList.remove('bg-gray-300', 'text-gray-600');
+                    circle.classList.add('bg-green-200', 'text-green-700');
+                } else {
+                    circle.classList.remove('bg-green-500', 'text-white', 'bg-green-200', 'text-green-700');
+                    circle.classList.add('bg-gray-300', 'text-gray-600');
+                }
+            });
+        }
+
+        function validateStep() {
+            const currentStepElement = document.getElementById(steps[currentStep]);
+            const inputs = currentStepElement.querySelectorAll('input, select');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                const errorElement = input.nextElementSibling;
+                if (input.hasAttribute('required') && !input.value) {
+                    isValid = false;
+                    input.classList.add('border-red-500');
+                    errorElement.textContent = 'Este campo é obrigatório.';
+                    errorElement.classList.remove('hidden');
+                    input.classList.add('error-shake');
+                    setTimeout(() => input.classList.remove('error-shake'), 500);
+                } else {
+                    input.classList.remove('border-red-500');
+                    if (errorElement) {
+                        errorElement.classList.add('hidden');
+                    }
+                }
+            });
+
+            return isValid;
+        }
+
+        nextButton.addEventListener('click', function() {
+            if (validateStep()) {
+                if (currentStep < steps.length - 1) {
+                    currentStep++;
+                    updateStepVisibility();
+                } else {
+                    form.submit();
+                }
+            }
+        });
+
+        prevButton.addEventListener('click', function() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateStepVisibility();
+            }
+        });
+
+        const imageInput = document.querySelector('input[name="image"]');
+        const imagePreview = document.getElementById('image-preview');
+
+        if (imageInput) {
+            imageInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.innerHTML = `<img src="${e.target.result}" alt="Asset Preview" class="w-full h-full object-cover rounded-md">`;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        updateStepVisibility();
+    });
+</script>
+
+    <style>
+      
+
+        .step-transition {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .step-hidden {
+            opacity: 0;
+            transform: translateX(20px);
+            display: none;
+        }
+        .step-visible {
+            opacity: 1;
+            transform: translateX(0);
+            display: block;
+        }
+        .error-shake {
+            animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+            transform: translate3d(0, 0, 0);
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+
+{% endblock %}

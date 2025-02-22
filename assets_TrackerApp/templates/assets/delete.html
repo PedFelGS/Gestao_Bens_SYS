@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block 'titulo' %}Excluir Ativo{% endblock %}
+
+{% block 'content' %}
+    <h1>Excluir Ativo</h1>
+    <p>Tem certeza de que deseja excluir o ativo "{{ asset.name }}"?</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Sim, excluir</button>
+        <a href="{% url 'assets_TrackerApp:asset_detail' asset.id %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+{% endblock %}

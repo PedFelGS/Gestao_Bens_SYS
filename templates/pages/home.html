@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block 'home_content' %}
+      <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+    <main class="p-0">
+        <section class="py-20 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+            <div class="container mx-auto px-4">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-8">
+                        <h1 class="text-4xl md:text-5xl font-bold leading-tight">
+                            Gestão de Ativos Inteligente para Instituições Modernas
+                        </h1>
+                        <p class="text-xl text-blue-100">
+                            Transforme a gestão de ativos da sua instituição com nossa solução digital avançada. 
+                            Garanta integridade, rastreabilidade e transparência em tempo real.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button class="px-6 py-3 bg-white text-blue-600 rounded text-lg font-semibold hover:bg-blue-50 transition-colors">
+                                Começar Agora
+                            </button>
+                            <button class="px-6 py-3 border border-white text-white rounded text-lg font-semibold hover:bg-blue-700 transition-colors">
+                                Saber Mais
+                            </button>
+                        </div>
+                    </div>
+                    <div class="hidden md:block">
+                        <img src="https://ztrax.com.br/wp-content/uploads/2022/11/PLANTA-HOSPITAL.gif" alt="Gestão de Ativos Digital" class="rounded-lg shadow-2xl">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="py-20">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Recursos Principais</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow animate-fadeIn">
+                        <div class="mb-4 text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Análise em Tempo Real</h3>
+                        <p class="text-gray-600">Monitore e analise seus ativos com dados atualizados instantaneamente.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow animate-fadeIn">
+                        <div class="mb-4 text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Segurança Avançada</h3>
+                        <p class="text-gray-600">Proteja suas informações com criptografia de ponta e controles de acesso.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow animate-fadeIn">
+                        <div class="mb-4 text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Automação Inteligente</h3>
+                        <p class="text-gray-600">Automatize processos repetitivos e libere sua equipe para tarefas estratégicas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="benefits" class="py-20 bg-gray-100/50">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Benefícios da Digitalização</h2>
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-blue-600 rounded-full p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-white">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            </div>
+                            <p class="text-lg">Aumento da eficiência administrativa</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="bg-blue-600 rounded-full p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-white">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            </div>
+                            <p class="text-lg">Tomada de decisões baseada em dados em tempo real</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="bg-blue-600 rounded-full p-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-white">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            </div>
+                            <p class="text-lg">Redução de erros e inconsistências</p>
+                        </div>
+                    </div>
+                    <div>
+                        <img src="https://ztrax.com.br/wp-content/uploads/2022/06/Imagem-1-TRACING.png" alt="Benefícios da Gestão Digital de Ativos" class="rounded-lg shadow-xl">
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="testimonials" class="py-20">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">O que Nossos Clientes Dizem</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <p class="text-gray-600 mb-4">"O TrackerAPP revolucionou nossa gestão de ativos. A eficiência e transparência que ganhamos são incríveis."</p>
+                        <div>
+                            <p class="font-semibold">Maria Silva</p>
+                            <p class="text-sm text-gray-500">Diretora de Operações, Empresa XYZ</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <p class="text-gray-600 mb-4">"A implementação foi suave e o suporte é excelente. Agora temos total controle sobre nossos ativos tecnológicos."</p>
+                        <div>
+                            <p class="font-semibold">João Santos</p>
+                            <p class="text-sm text-gray-500">Gestor de TI, Órgão Público ABC</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <p class="text-gray-600 mb-4">"A precisão dos relatórios e a facilidade de auditoria nos ajudaram a economizar tempo e recursos significativamente."</p>
+                        <div>
+                            <p class="font-semibold">Ana Oliveira</p>
+                            <p class="text-sm text-gray-500">CFO, Multinacional 123</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 bg-blue-600 text-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold mb-4">Pronto para Transformar sua Gestão de Ativos?</h2>
+                <p class="text-xl mb-8">Agende uma demonstração gratuita e descubra como podemos ajudar sua instituição.</p>
+                <button class="px-8 py-4 bg-white text-blue-600 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-colors">
+                    Agendar Demonstração
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline-block ml-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                </button>
+            </div>
+        </section>
+    </main>
+
+        <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">TrackerAPP</h3>
+                    <p class="text-gray-400">Soluções inteligentes para gestão de ativos.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Links Rápidos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Início</a></li>
+                        <li><a href="#features" class="text-gray-400 hover:text-white transition-colors">Login</a></li>
+                        <li><a href="#benefits" class="text-gray-400 hover:text-white transition-colors">Registrar</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contato</h4>
+                    <p class="text-gray-400">contato@trackerapp.com</p>
+                    <p class="text-gray-400">+55 (87) XXXX-XXXX</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Siga-nos</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">LinkedIn</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">Twitter</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">Facebook</a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 TrackerApp. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Notificação</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+{% endblock %}

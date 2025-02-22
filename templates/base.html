@@ -1,0 +1,39 @@
+{% load static %}
+
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    {% include 'includes/layout/head.html' %}
+    {% block 'css' %}{% endblock %}
+    <title>Tracker - {% block 'titulo' %}Título Padrão{% endblock %}</title>
+  </head>
+  <body>
+    <main class="main-section ">
+
+      {% include 'includes/layout/navbar_public.html' %}
+      <div class="app-container h-screen flex flex-col">
+        <div class="bg-gray-300/50 content-container flex flex-row">
+          <div>
+            {% include 'includes/layout/sidebar.html' %}
+          </div>
+          <div class="w-full h-screen">
+            {% if is_home %}
+              {% block 'home_content' %}{% endblock %}
+            {% else %}
+              <div class="container mx-auto py-8">
+                <div class="bg-gray-100/85  shadow-md rounded-lg p-6">
+                  {% block 'content' %}{% endblock %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+    </main>
+    
+    {% include 'includes/layout/footer.html' %}
+    {% include 'includes/layout/scripts.html' %}
+    {% block 'scripts' %}{% endblock %}
+  </body>
+</html>

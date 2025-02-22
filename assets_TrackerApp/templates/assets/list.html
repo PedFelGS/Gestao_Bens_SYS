@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+{% load static custom_filters %}
+
+{% block 'titulo' %}Gerenciamento de Ativos{% endblock %}
+
+{% block 'head' %}
+<link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+<style>
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    .toast {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        padding: 1rem;
+        background-color: #4CAF50;
+        color: white;
+        border-radius: 0.25rem;
+        z-index: 50;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block 'content' %}
+<div class="container  mx-auto ">
+    <div class=" rounded-lg ">
+        <div class="flex justify-between items-center ">
+            <h1 class="text-3xl font-semibold text-gray-900 mb-8">Ativos</h1>
+            <div class="flex gap-2">
+                <form method="post" enctype="multipart/form-data" id="csv-upload-form">
+                    {% csrf_token %}
+                    <input type="file" accept=".csv" class="hidden" id="csv-upload" name="csv_file">
+                    <button type="button" onclick="document.getElementById('csv-upload').click()" 
+                            class="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center">
+                        <i class="fas fa-upload mr-2"></i>
+                        IMPORTAR ATIVOS
+                    </button>
+                </form>
+                <a href="{% url 'assets_TrackerApp:asset_create' %}" 
+                   class="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    ADICIONAR ATIVO
+                </a>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div class="flex items-center gap-4 flex-1 w-full md:w-auto">
+                <div id="selectedActions" class="hidden">
+                    <span class="text-sm text-gray-500 mr-2">
+                        <span id="selectedCount">0</span> selecionados
+                    </span>
+                    <form method="post" id="bulk-action-form">
+                        {% csrf_token %}
+                        <button type="button" onclick="deleteSelected()" 
+                                class="text-red-600 hover:text-red-800 font-medium text-sm px-2 py-1 rounded border border-red-600 hover:bg-red-50 mr-2">
+                            <i class="fas fa-trash mr-1"></i>
+                            Excluir
+                        </button>
+                        <button type="button" onclick="exportSelected()" 
+                                class="text-gray-600 hover:text-gray-800 font-medium text-sm px-2 py-1 rounded border border-gray-600 hover:bg-gray-50">
+                            <i class="fas fa-download mr-1"></i>
+                            Exportar
+                        </button>
+                    </form>
+                </div>
+
+                <div class="relative flex-1 max-w-md">
+                    <i class="absolute left-3 top-1/2 transform -translate-y-1/2 fas fa-search text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="Pesquisar ativos" 
+                           class="pl-10 w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+<div class="relative inline-block text-left">
+    <button type="button" onclick="toggleFiltersDropdown()" 
+            class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500">
+        Filtros
+        <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+    </button>
+    <div id="filtersDropdown" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="filters-menu">
+        <div class="py-1" role="none">
+            <div class="px-4 py-2">
+                <h3 class="text-sm font-medium text-gray-900">Departamento</h3>
+                <div id="departmentFilters" class="mt-2 space-y-2">
+                    {% for department in departments %}
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="departments" value="{{ department.name }}" id="dept_{{ department.id }}">
+                        <span class="ml-2">{{ department.name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="py-1" role="none">
+            <div class="px-4 py-2">
+                <h3 class="text-sm font-medium text-gray-900">Categoria</h3>
+                <div id="categoryFilters" class="mt-2 space-y-2">
+                    {% for category in categories %}
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="categories" value="{{ category.name }}" id="cat_{{ category.id }}">
+                        <span class="ml-2">{{ category.name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="py-1" role="none">
+            <div class="px-4 py-2">
+                <h3 class="text-sm font-medium text-gray-900">Fornecedor</h3>
+                <div id="supplierFilters" class="mt-2 space-y-2">
+                    {% for supplier in suppliers %}
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="suppliers" value="{{ supplier.name }}" id="sup_{{ supplier.id }}">
+                        <span class="ml-2">{{ supplier.name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="py-1" role="none">
+            <div class="px-4 py-2">
+                <h3 class="text-sm font-medium text-gray-900">Disponibilidade</h3>
+                <div id="availabilityFilters" class="mt-2 space-y-2">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="availability" value="true" id="avail_true">
+                        <span class="ml-2">Disponível</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" class="filter-checkbox" data-filter-type="availability" value="false" id="avail_false">
+                        <span class="ml-2">Indisponível</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="changeView('list')" id="listViewBtn" class="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-md p-2">
+                    <i class="fas fa-list"></i>
+                </button>
+                <button onclick="changeView('grid')" id="gridViewBtn" class="bg-white text-gray-700 hover:bg-gray-100 rounded-md p-2">
+                    <i class="fas fa-th-large"></i>
+                </button>
+            </div>
+        </div>
+
+
+<div id="assetList" class="border rounded-lg overflow-hidden">
+    {% if assets %}
+
+        <table class="w-full {% if current_view != 'list' %}hidden{% endif %}" id="listView">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Departamento</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tag RFID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for asset in assets %}
+                <tr class="asset-item hover:bg-gray-50" data-id="{{ asset.id }}" data-name="{{ asset.name }}" data-department="{{ asset.department.name }}" data-category="{{ asset.category.name }}" data-supplier="{{ asset.supplier.name }}" data-availability="{{ asset.availability|yesno:'true,false' }}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" name="selected_assets" value="{{ asset.id }}" class="asset-checkbox" onchange="toggleAssetSelection('{{ asset.id }}')">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a href="{% url 'assets_TrackerApp:asset_detail' asset.id %}" class="text-blue-600 hover:text-blue-900">
+                            {{ asset.name }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">R$ {{ asset.price|floatformat:2 }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ asset.department.name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if asset.availability %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if asset.availability %}Disponível{% else %}Indisponível{% endif %}
+                        </span>
+                    </td>
+
+                    <td class="px-6 py-4 whitespace-nowrap">
+                <div>
+                    <p class="mt-1">{{ asset.rfid_tag }}</p>
+                </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a href="{% url 'assets_TrackerApp:asset_update' asset.id %}" class="text-indigo-600 hover:text-indigo-900 mr-2">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'assets_TrackerApp:asset_delete' asset.id %}" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 {% if current_view == 'list' %}hidden{% endif %}" id="gridView">
+            {% for asset in assets %}
+            <div class="asset-item bg-white rounded-lg shadow-md p-4" data-id="{{ asset.id }}" data-name="{{ asset.name }}" data-department="{{ asset.department.name }}" data-category="{{ asset.category.name }}" data-supplier="{{ asset.supplier.name }}" data-availability="{{ asset.availability|yesno:'true,false' }}">
+                <div class="flex justify-between items-start mb-2">
+                    <input type="checkbox" name="selected_assets" value="{{ asset.id }}" class="asset-checkbox" onchange="toggleAssetSelection('{{ asset.id }}')">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                          {% if asset.availability %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                        {% if asset.availability %}Disponível{% else %}Indisponível{% endif %}
+                    </span>
+                </div>
+                <div class="text-center mb-4">
+                    {% if asset.image %}
+                    <img src="{{ asset.image.url }}" alt="{{ asset.name }}" class="h-32 w-full object-contain">
+                    {% else %}
+                    <div class="h-32 w-full bg-gray-100 flex items-center justify-center">
+                        <i class="fas fa-image text-gray-400 text-3xl"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <h3 class="text-lg font-semibold mb-2">
+                    <a href="{% url 'assets_TrackerApp:asset_detail' asset.id %}" class="text-blue-600 hover:text-blue-900">
+                        {{ asset.name }}
+                    </a>
+                </h3>
+                <p class="text-sm text-gray-600">Valor: R$ {{ asset.price|floatformat:2 }}</p>
+                <p class="text-sm text-gray-600">Departamento: {{ asset.department.name }}</p>
+                <div class="text-sm text-gray-600">
+                <div>
+                    <p class="mt-1"><strong>Tag RFID: </strong>{{ asset.rfid_tag }}</p>
+                </div>
+                </div>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <a href="{% url 'assets_TrackerApp:asset_update' asset.id %}" class="text-indigo-600 hover:text-indigo-900">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'assets_TrackerApp:asset_delete' asset.id %}" class="text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="p-6 text-center text-gray-500">
+            Nenhum ativo cadastrado
+        </div>
+    {% endif %}
+</div>
+
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    let currentView = '{{ current_view }}';
+    let selectedAssets = new Set();
+    let filters = {
+        departments: [],
+        categories: [],
+        suppliers: [],
+        availability: []
+    };
+
+    function controlAssets() {
+        const listView = document.getElementById('listView');
+        const gridView = document.getElementById('gridView');
+
+        if (currentView === 'list') {
+            listView.classList.remove('hidden');
+            gridView.classList.add('hidden');
+        } else {
+            listView.classList.add('hidden');
+            gridView.classList.remove('hidden');
+        }
+
+        updateSelectedCount();
+    }
+
+    function changeView(view) {
+        currentView = view;
+        document.getElementById('listViewBtn').classList.toggle('bg-gray-200', view === 'list');
+        document.getElementById('gridViewBtn').classList.toggle('bg-gray-200', view === 'grid');
+        controlAssets();
+    }
+
+    function toggleAssetSelection(id) {
+        const checkbox = document.querySelector(`input[name="selected_assets"][value="${id}"]`);
+        if (checkbox.checked) {
+            selectedAssets.add(id);
+        } else {
+            selectedAssets.delete(id);
+        }
+        updateSelectedCount();
+    }
+
+    function toggleSelectAll(checked) {
+        const checkboxes = document.querySelectorAll('input[name="selected_assets"]:not([disabled])');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = checked;
+            if (checked) {
+                selectedAssets.add(checkbox.value);
+            } else {
+                selectedAssets.delete(checkbox.value);
+            }
+        });
+        updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+        const count = selectedAssets.size;
+        document.getElementById('selectedCount').textContent = count;
+        document.getElementById('selectedActions').style.display = count > 0 ? 'inline-block' : 'none';
+    }
+
+    function deleteSelected() {
+        if (selectedAssets.size > 0) {
+            if (confirm('Tem certeza que deseja excluir os ativos selecionados?')) {
+                const form = document.getElementById('bulk-action-form');
+                selectedAssets.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'selected_assets';
+                    input.value = id;
+                    form.appendChild(input);
+                });
+                form.submit();
+            }
+        }
+    }
+
+    function exportSelected() {
+        if (selectedAssets.size > 0) {
+            const form = document.getElementById('bulk-action-form');
+            
+            selectedAssets.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'selected_assets';
+                input.value = id;
+                form.appendChild(input);
+            });
+            form.submit();
+        } else {
+            showToast('Selecione pelo menos um ativo para exportar');
+        }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.display = 'block';
+        toast.classList.add('fade-in');
+        setTimeout(() => {
+            toast.style.display = 'none';
+            toast.classList.remove('fade-in');
+        }, 3000);
+    }
+
+    function toggleFiltersDropdown() {
+        const dropdown = document.getElementById('filtersDropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    function handleFilterChange(filterType, value, checked) {
+        if (checked) {
+            // Adiciona ao filtro
+            if (!filters[filterType].includes(value)) {
+                filters[filterType].push(value);
+            }
+        } else {
+            // Remove do filtro
+            filters[filterType] = filters[filterType].filter(item => item !== value);
+        }
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const assets = document.querySelectorAll('.asset-item');
+        assets.forEach(asset => {
+            const department = asset.dataset.department;
+            const category = asset.dataset.category;
+            const supplier = asset.dataset.supplier;
+            const availability = asset.dataset.availability;
+
+            const matchesDepartment = filters.departments.length === 0 || filters.departments.includes(department);
+            const matchesCategory = filters.categories.length === 0 || filters.categories.includes(category);
+            const matchesSupplier = filters.suppliers.length === 0 || filters.suppliers.includes(supplier);
+            const matchesAvailability = filters.availability.length === 0 || filters.availability.includes(availability);
+
+            if (matchesDepartment && matchesCategory && matchesSupplier && matchesAvailability) {
+                asset.style.display = '';
+                asset.querySelector('input[name="selected_assets"]').disabled = false;
+            } else {
+                asset.style.display = 'none';
+                const checkbox = asset.querySelector('input[name="selected_assets"]');
+                checkbox.disabled = true;
+                checkbox.checked = false;
+                selectedAssets.delete(checkbox.value);
+            }
+        });
+        updateSelectedCount();
+    }
+
+    function searchAssets(searchTerm) {
+        const assets = document.querySelectorAll('.asset-item');
+        assets.forEach(asset => {
+            const name = asset.dataset.name.toLowerCase();
+            const department = asset.dataset.department.toLowerCase();
+            const id = asset.dataset.id.toLowerCase();
+            const matches = name.includes(searchTerm) || department.includes(searchTerm) || id.includes(searchTerm);
+            
+            if (matches && asset.style.display !== 'none') {
+                asset.style.display = '';
+                asset.querySelector('input[name="selected_assets"]').disabled = false;
+            } else {
+                asset.style.display = 'none';
+                const checkbox = asset.querySelector('input[name="selected_assets"]');
+                checkbox.disabled = true;
+                checkbox.checked = false;
+                selectedAssets.delete(checkbox.value);
+            }
+        });
+        updateSelectedCount();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const assetItems = document.querySelectorAll('.asset-item');
+
+        assetItems.forEach(item => {
+            const name = item.getAttribute('data-name').toLowerCase();
+            const department = item.getAttribute('data-department').toLowerCase();
+            const category = item.getAttribute('data-category').toLowerCase();
+            const supplier = item.getAttribute('data-supplier').toLowerCase();
+
+            const rfidTag = item.querySelector('.text-sm.text-gray-600 p') ? item.querySelector('.text-sm.text-gray-600 p').textContent.toLowerCase() : '';
+
+            if (name.includes(searchTerm) || 
+                department.includes(searchTerm) || 
+                category.includes(searchTerm) || 
+                supplier.includes(searchTerm) ||
+                rfidTag.includes(searchTerm)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        if (searchTerm === '') {
+            assetItems.forEach(item => {
+                item.style.display = '';
+            });
+        }
+    });
+
+    document.getElementById('csv-upload').addEventListener('change', function(e) {
+        if (this.files[0]) {
+            document.getElementById('csv-upload-form').submit();
+        }
+    });
+
+    // Initialize
+    controlAssets();
+    document.querySelectorAll('input[name="selected_assets"]').forEach(checkbox => {
+        checkbox.addEventListener('change', () => toggleAssetSelection(checkbox.value));
+    });
+
+    document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            handleFilterChange(e.target.dataset.filterType, e.target.value, e.target.checked);
+        });
+    });
+
+    function exportToCSV() {
+        const selectedAssetsArray = Array.from(selectedAssets);
+        const assetsData = selectedAssetsArray.map(id => {
+            const asset = document.querySelector(`.asset-item[data-id="${id}"]`);
+            return {
+                name: asset.dataset.name,
+                department: asset.dataset.department,
+                category: asset.dataset.category,
+                supplier: asset.dataset.supplier,
+                availability: asset.dataset.availability,
+                rfid: asset.querySelector('.text-sm.text-gray-600 p') ? asset.querySelector('.text-sm.text-gray-600 p').textContent : ''
+            };
+        });
+
+        // Convert the data to CSV format
+        const header = ['Name', 'Department', 'Category', 'Supplier', 'Availability', 'RFID'];
+        const rows = assetsData.map(asset => [
+            asset.name,
+            asset.department,
+            asset.category,
+            asset.supplier,
+            asset.availability,
+            asset.rfid
+        ]);
+        const csvContent = [
+            header,
+            ...rows
+        ]
+            .map(row => row.join(','))
+            .join('\n');
+
+        // Create a Blob and trigger a download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'assets_export.csv');
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+    }
+
+    function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (file && file.type === 'text/csv') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const csvContent = e.target.result;
+            const rows = csvContent.split('\n');
+            const header = rows[0].split(',');
+            const data = rows.slice(1).map(row => row.split(','));
+
+            // Parse the CSV data and process it
+            data.forEach(row => {
+                const asset = {
+                    name: row[0],
+                    department: row[1],
+                    category: row[2],
+                    supplier: row[3],
+                    availability: row[4],
+                    rfid: row[5]
+                };
+                // Process the asset object (ex: Add to database, display, etc.)
+                console.log(asset); // Exemplo de exibição do objeto no console
+            });
+        };
+        reader.readAsText(file);
+    } else {
+        showToast('Por favor, envie um arquivo CSV válido');
+    }
+}
+
+document.getElementById('csv-upload').addEventListener('change', handleFileImport);
+
+</script>
+
+{% endblock %}
